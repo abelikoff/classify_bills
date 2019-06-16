@@ -1,0 +1,4 @@
+include *.md
+include LICENSE.txt
+
+# This file is ignored by setuptools - additional files are listed in setup.py

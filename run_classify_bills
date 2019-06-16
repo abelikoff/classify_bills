@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+
+# Simple shell wrapper for classify_bills
+
+import classify_bills
+
+classify_bills.main()

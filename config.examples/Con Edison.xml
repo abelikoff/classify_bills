@@ -1,0 +1,8 @@
+<account id="Con Edison (92)">
+    <match-all>
+        <pattern regex="conEd.com" />
+        <pattern regex="Con Edison" />
+    </match-all>
+    <date-extraction regex="Billing period: \S+ \d+,\s+\d+ to (\S+ \d+, \d+)"
+                     parsing-format="%b %d, %Y" />
+</account>

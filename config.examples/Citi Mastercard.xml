@@ -1,0 +1,8 @@
+<account id="Citi Mastercard">
+    <match-all>
+        <pattern regex="CITI CARDS" />
+        <pattern regex="www\.citicards\.com" />
+    </match-all>
+    <date-extraction regex="(\d+/\d+/\d+)\s*\-\s*\d+/\d+/\d+"
+                     parsing-format="%m/%d/%y" />
+</account>

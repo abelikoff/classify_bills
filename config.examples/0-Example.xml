@@ -1,0 +1,21 @@
+<!-- This is an example configuration file -->
+
+<!-- id is a string that uniquely identifies this account -->
+<account id="...">
+
+  <!-- all of these patterns must match within the PDF text -->
+  <match-all>
+        <pattern regex="..." />
+        <!-- multiple pattern nodes can be specified -->
+  </match-all>
+
+  <!-- This defines bill date extraction rules.
+
+       regex specifies the pattern with a group that would extract the
+       bill date.
+
+       parsing-format is strptime() format used to convert extracted
+       date into a Date object.
+  -->
+  <date-extraction regex="..." parsing-format="..." />
+</account>

@@ -1,0 +1,8 @@
+<account id="Time Warner Cable">
+    <match-all>
+        <pattern regex="TV" />
+        <pattern regex="TWC" />
+    </match-all>
+    <date-extraction regex="Service\sfrom\s+\d+/\d+/\d+\s+through\s+(\d+/\d+/\d+)"
+                     parsing-format="%m/%d/%y" />
+</account>

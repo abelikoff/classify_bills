@@ -43,36 +43,53 @@ work, so I do consider it a win.
 
 ## Installation
 
-The script `classify_bills` is pretty self-contained and can be placed
-anywhere. If `colorlogger.py` is located anywhere where Python can
-load it from (current directory, symlink destination, `$PYTHONPATH`),
-it will be loaded and output would be colorized.
+Install using `pip`:
 
-The script is driven by the configuration file, which is searched in
-the following order:
+```shell
+pip install classify_bills
+```
 
-* `./.classify_bills.conf`
-* `./classify_bills.conf`
-* `~/.classify_bills.conf`
-* `/etc/classify_bills.conf`
+Once installed, `classify_bills` should be available in your path.
 
-Currently, the script has the following external dependencies:
+When using the saource code directly or from GitHub, use
+`run_classify_bills` shell driver that will invoke the Python code
+properly.
+
+Currently, the `classify_bills` has the following external
+dependencies:
 
 * Python 3.x
 * `pdftotext` program (usually comes as part of `poppler` package.)
 
 
-
 ## Configuration
 
-Use `classify_bills.conf.example` to build your own configuration. In
-general, a process of adding support for a new kind of bill works the
-following way:
+`classify_bills` is configured via a set of XML files, where each file
+defines a setup for a specific bill type. Those files should be placed
+in a configuration directory, which could be specified one of the
+following ways:
 
-* Create a new entry in the `accounts` array.
-* Configure the destination directory and naming convention for bills.
-* Use `pdftotext` to examine text output of a couple bills to find out
-  the following facts:
+* Via `-c` command line option.
+* Via an environment variable `$CLASSIFY_BILLS_CONFIG_DIRECTORY`
+* Using a default location `~/.classify_bills.conf.d`
+
+Each file defines patterns that might be present in the bill's text in
+order to be considered for this account. A pattern to match bill date
+also must be specified (and must be matched) as well as a pattern to
+extract the date (via `strptime()`).
+
+The package directory `classify_bills.config.examples` contains
+several examples. In particular, see `0-Example.xml` in that
+directory, which describes all aspects of configuration.
+
+
+## Creating new configuration files
+
+In general, a process of adding support for a new kind of bill works
+the following way:
+
+* Use `pdftotext` to examine text output of a couple bills for a given
+  account to determine the following:
   * Patterns in the text that could be used to _uniquely identify this
     kind of bill_ (name of a bank or service provider, URLs,
     etc). It's beter to have several specific patterns to allow future
@@ -81,6 +98,7 @@ following way:
   * Pattern that could be used to infer the date this bill should be
     associated with.
   * Format of that date.
+* Create a new XML file (use `0-Example.xml` as a boilerplate).
 
 This process is unfortunately not easy to automate so it has to be
 done manually and it is a pain. However, it only has to be done once
@@ -91,27 +109,29 @@ happen often).
 
 ## Using `classify_bills`
 
-Running `classify_bills` is fairly simple. It can be run either on the
-entire directory of input documents (configured via `source-directory`
-in the config file), or documents can be explicitly specified in the
-command line. By default, the script runs in dry-run mode, not making
-any changes. To actually perform all actions, run it with `-f` flag.
+Running `classify_bills` is fairly simple. You can pass either
+individual PDF files or directories as command-line arguments. By
+default, it runs in dry-run mode, not making any changes. To actually
+perform all actions, run it with `-f` flag.
 
-The script will never overwrite any existing document in the
-destination directory (unless it is forced to via `-w` flag).
+Files that have been successfully detected are moved to the hierarchy
+under the output directory (which is specified either with `-o` flag
+or via an environment variable `$CLASSIFY_BILLS_OUTPUT_DIRECTORY`. The
+script will never overwrite any existing document in the destination
+directory (unless it is forced to via `-w` flag).
 
 
 ## Future work
 
-From the overall design point, it is clear that the decision to use
-JSON as configuration language was not an optimal one. In retrospect,
-I should've let the configuration be split into individual files, most
-probably using XML. If I change it in the future, I'll supply a
-conversion tool. That would also allow individually contributed
-configurations to be shared.
-
-Furthermore, the most painful aspect of using the tool is manual
+Currently, the most painful aspect of using the tool is manual
 configuration of patterns for each bill type. There are several ideas
 on how to try to make it easier: from finding and parsing all dates in
 the bill to using neural networks to infer those facts from the
 bill. This might be an interesting direction for future work.
+
+
+# Contributing
+
+You are welcome to contribute to this project either by submitting
+bill configuration for different institutions or by improving the
+code and adding features. :-)

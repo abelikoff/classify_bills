@@ -1,0 +1,8 @@
+<account id="Amex Blue Cash Preferred">
+    <match-all>
+        <pattern regex="American Express" />
+        <pattern regex="Blue Cash Preferred" />
+    </match-all>
+    <date-extraction regex="Closing Date\s+(\d+/\d+/\d+)"
+                     parsing-format="%m/%d/%y" />
+</account>
