@@ -51,7 +51,7 @@ pip install classify_bills
 
 Once installed, `classify_bills` should be available in your path.
 
-When using the saource code directly or from GitHub, use
+When using the source code directly or from GitHub, use
 `run_classify_bills` shell driver that will invoke the Python code
 properly.
 
@@ -81,6 +81,9 @@ extract the date (via `strptime()`).
 The package directory `classify_bills.config.examples` contains
 several examples. In particular, see `0-Example.xml` in that
 directory, which describes all aspects of configuration.
+
+Lastly, color in the output can be disabled by setting
+`$CLASSIFY_BILLS_DISABLE_COLOR` environment variable.
 
 
 ## Creating new configuration files

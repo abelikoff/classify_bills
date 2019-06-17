@@ -17,7 +17,9 @@ import sys
 import time
 from optparse import OptionParser
 import xml.etree.ElementTree as ET
-from classify_bills import colorlogger
+
+if not "CLASSIFY_BILLS_DISABLE_COLOR" in os.environ:
+    from classify_bills import colorlogger
 
 
 class BillConfiguration:      # pylint: disable=too-many-instance-attributes
@@ -229,11 +231,6 @@ identified and named are specified in the configuration file.
 
 """
 
-CONFIG_FILES = [".classify_bills.conf",
-                "classify_bills.conf",
-                "~/.classify_bills.conf",
-                "/etc/classify_bills.conf"]
-
 prog = os.path.basename(sys.argv[0])
 program_version = 1.0
 version_string = "%%prog  %s" % program_version
@@ -278,19 +275,6 @@ def main():
 
     if options.only_errors and (options.do_things or options.ignore_errors):
         logging.fatal("Conflicting options passed")
-        sys.exit(1)
-
-    # read configuration
-
-    config_file = None
-
-    for filename in CONFIG_FILES:
-        if os.path.exists(filename):
-            config_file = filename
-            break
-
-    if not config_file:
-        logging.fatal("No configuration file found")
         sys.exit(1)
 
 
