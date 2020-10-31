@@ -7,6 +7,7 @@
 import calendar
 import datetime
 import glob
+import hashlib
 import re
 import os
 import os.path
@@ -220,6 +221,26 @@ class BillConfiguration:      # pylint: disable=too-many-instance-attributes
             fout.write("</account>\n")
 
 
+def compare_files(fname1, fname2):
+    """Compare two files.
+
+    Return:
+    0 - both file exist and are identical.
+    -1 - at least one of the files does not exist.
+    1 - both file exist but they are different.
+    """
+
+    if not os.path.isfile(fname1) or not os.path.isfile(fname2):
+        return -1
+
+    checksum1 = hashlib.md5(open(fname1, "rb").read()).hexdigest()
+    checksum2 = hashlib.md5(open(fname2, "rb").read()).hexdigest()
+
+    if checksum1 == checksum2:
+        return 0
+
+    return 1
+
 
 usage_string = """Usage:  %prog [options]
         %prog [options] <file(s)>
@@ -252,9 +273,9 @@ def main():
     parser.add_option("-f", "--force",
                       help="perform actions (as opposed to dry run)",
                       action="store_true", dest="do_things")
-    parser.add_option("-w", "--overwrite",
-                      help="overwrite if destination file exists",
-                      action="store_true", dest="overwrite")
+    parser.add_option("--remove-dups",
+                      help="remove duplicates",
+                      action="store_true", dest="remove_dups")
     parser.add_option("-i", "--ignore-errors", help="ignore errors",
                       action="store_true", dest="ignore_errors")
     parser.add_option("-e", "--only-errors", help="only show errors",
@@ -415,13 +436,31 @@ def main():
             logging.debug("%s: will be moved to %s", short_fname, out_fname)
 
             if options.do_things:
-                if os.path.isfile(out_fname) and not options.overwrite:
-                    # pylint: disable=logging-not-lazy
-                    logging.warning("not moving %s -> %s (destination file " +
-                                    "exists)", fname, out_fname)
-                else:
+                if not os.path.isfile(out_fname):
                     logging.info("moving '%s'  ->  '%s'", fname, out_fname)
                     shutil.move(fname, out_fname)
+                else:           # dest file exists
+                    rcode = compare_files(fname, out_fname)
+
+                    if rcode == 0:
+                        if options.remove_dups:
+                            # pylint: disable=logging-not-lazy
+                            logging.warning("%s is identical to %s " +
+                                            "-- removing",
+                                            fname, out_fname)
+                            os.remove(fname)
+                        else:   # keep duplicate
+                            # pylint: disable=logging-not-lazy
+                            logging.warning("%s is identical to %s " +
+                                            "-- ignored",
+                                            fname, out_fname)
+
+                    else:       # files are different
+                        # pylint: disable=logging-not-lazy
+                        logging.warning("%s and %s are different (but " +
+                                        "classified the same)",
+                                        fname, out_fname)
+
             else:
                 logging.info("WILL MOVE '%s'  ->  '%s'", fname, out_fname)
 
