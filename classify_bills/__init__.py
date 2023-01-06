@@ -183,7 +183,7 @@ class BillConfiguration:      # pylint: disable=too-many-instance-attributes
     def write_xml(self, output_file):
         """Write configuration as XML file."""
 
-        with open(output_file, "wt") as fout:
+        with open(output_file, "wt", encoding="utf8") as fout:
             fout.write("<account id=\"%s\">\n" % self.account_name)
 
             if self.output_subdirectory or self.output_template:
@@ -238,6 +238,31 @@ def compare_files(fname1, fname2):
 
     if checksum1 == checksum2:
         return 0
+
+    # compare both PDFs as pure text (sometimes system generate them
+    # subtly different
+
+    try:
+        content = []            # array of text content of both files
+
+        for fname in [fname1, fname2]:
+            process = subprocess.Popen(["pdftotext", fname, "-"],
+                                       stdout=subprocess.PIPE)
+            (text, _) = process.communicate()
+            content.append(re.sub(r"\s+", "", text.decode("utf-8")))
+
+            if process.returncode != 0:
+                logging.error("Failed to extract text from file '%s'",
+                              fname)
+                return 1
+
+        if content[0] == content[1]:
+            logging.debug("%s and %s are textually identical", fname1, fname2)
+            return 0
+
+    except OSError:
+        logging.error("Error running pdftotext")
+        return 1
 
     return 1
 
